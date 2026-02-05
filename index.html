@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Order System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px 30px;
+            border-bottom: 5px solid #1a2530;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            opacity: 0.85;
+            font-size: 16px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .form-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            background-color: #f9fafc;
+            border-radius: 10px;
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+
+        .po-list-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            background-color: #f9fafc;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d1d9e6;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #4a6491;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 100, 145, 0.1);
+        }
+
+        .item-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: flex-end;
+        }
+
+        .item-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .item-row .item-name {
+            flex: 3;
+        }
+
+        .item-row .item-qty,
+        .item-row .item-price {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: #4a6491;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3a537a;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .btn-add-item {
+            background-color: #17a2b8;
+            color: white;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .btn-add-item:hover {
+            background-color: #138496;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .actions .btn {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .po-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .po-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #4a6491;
+            transition: transform 0.2s;
+        }
+
+        .po-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .po-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .po-number {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .po-date {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .po-vendor {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .po-items-summary {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .po-total {
+            font-weight: 700;
+            color: #28a745;
+            font-size: 16px;
+        }
+
+        .po-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 14px;
+            border-top: 1px solid #eaeaea;
+            background-color: #f9fafc;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .form-section {
+                margin-right: 0;
+            }
+            
+            .item-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .actions .btn {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-file-invoice-dollar"></i> Purchase Order System</h1>
+        </header>
+        
+        <div class="main-content">
+            <!-- Form Section -->
+            <section class="form-section">
+                <h2 class="section-title">Create New Purchase Order</h2>
+                <form id="poForm">
+                    <div class="form-group">
+                        <label for="poNumber">PO Number</label>
+                        <input type="text" id="poNumber" placeholder="PO-2023-001" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vendorName">Vendor Name</label>
+                        <input type="text" id="vendorName" placeholder="Vendor company name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vendorPhone">Vendor Phone Number</label>
+                        <input type="text" id="vendorPhone" placeholder="Example: +6281234567890" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="poDate">PO Date</label>
+                        <input type="date" id="poDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Notes (Optional)</label>
+                        <textarea id="notes" rows="3" placeholder="Add notes for this PO"></textarea>
+                    </div>
+                    
+                    <h3 class="section-title" style="margin-top: 30px;">Item List</h3>
+                    
+                    <div id="itemsContainer">
+                        <!-- Item rows will be added here dynamically -->
+                        <div class="item-row">
+                            <div class="form-group item-name">
+                                <label>Item Name</label>
+                                <input type="text" class="itemName" placeholder="Item name" required>
+                            </div>
+                            <div class="form-group item-qty">
+                                <label>Quantity</label>
+                                <input type="number" class="itemQty" placeholder="1" min="1" required>
+                            </div>
+                            <div class="form-group item-price">
+                                <label>Unit Price</label>
+                                <input type="number" class="itemPrice" placeholder="100000" min="0" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="addItemBtn" class="btn btn-add-item">
+                        <i class="fas fa-plus-circle"></i> Add Item
+                    </button>
+                    
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save PO
+                        </button>
+                        <button type="button" id="resetFormBtn" class="btn btn-warning">
+                            <i class="fas fa-redo"></i> Reset Form
+                        </button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- PO List Section -->
+            <section class="po-list-section">
+                <h2 class="section-title">Purchase Order List</h2>
+                <div id="poList" class="po-list">
+                    <!-- Purchase orders will be loaded here -->
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No purchase orders yet. Start by creating a new PO.</p>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button type="button" id="clearAllBtn" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Delete All POs
+                    </button>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Modal for confirmation -->
+        <div id="confirmationModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Confirmation</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalMessage">Are you sure?</p>
+                </div>
+                <div class="modal-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button id="modalCancelBtn" class="btn btn-warning">Cancel</button>
+                    <button id="modalConfirmBtn" class="btn btn-danger">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2026 Purchase Order System. Data is saved in your browser.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Data initialization
+        let purchaseOrders = JSON.parse(localStorage.getItem('purchaseOrders')) || [];
+        let currentPoId = null; // For tracking which PO to delete
+        
+        // DOM elements
+        const poForm = document.getElementById('poForm');
+        const poList = document.getElementById('poList');
+        const itemsContainer = document.getElementById('itemsContainer');
+        const addItemBtn = document.getElementById('addItemBtn');
+        const resetFormBtn = document.getElementById('resetFormBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const closeModalBtn = document.querySelector('.close-modal');
+        
+        // Initialize the date field with today's date
+        document.getElementById('poDate').valueAsDate = new Date();
+        
+        // Load existing POs on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderPOList();
+        });
+        
+        // Add item row
+        addItemBtn.addEventListener('click', function() {
+            const itemRow = document.createElement('div');
+            itemRow.className = 'item-row';
+            itemRow.innerHTML = `
+                <div class="form-group item-name">
+                    <label>Item Name</label>
+                    <input type="text" class="itemName" placeholder="Item name" required>
+                </div>
+                <div class="form-group item-qty">
+                    <label>Quantity</label>
+                    <input type="number" class="itemQty" placeholder="1" min="1" required>
+                </div>
+                <div class="form-group item-price">
+                    <label>Unit Price</label>
+                    <input type="number" class="itemPrice" placeholder="100000" min="0" required>
+                </div>
+                <div class="form-group" style="flex: 0.3; display: flex; align-items: flex-end;">
+                    <button type="button" class="btn btn-danger btn-small remove-item-btn" style="padding: 12px;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            itemsContainer.appendChild(itemRow);
+            
+            // Add event listener to the remove button
+            itemRow.querySelector('.remove-item-btn').addEventListener('click', function() {
+                // Only remove if there's more than one item row
+                if (document.querySelectorAll('.item-row').length > 1) {
+                    itemRow.remove();
+                } else {
+                    alert('Minimum one item is required in the PO');
+                }
+            });
+        });
+        
+        // Form submission
+        poForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect form data
+            const poNumber = document.getElementById('poNumber').value;
+            const vendorName = document.getElementById('vendorName').value;
+            const vendorPhone = document.getElementById('vendorPhone').value;
+            const poDate = document.getElementById('poDate').value;
+            const notes = document.getElementById('notes').value;
+            
+            // Collect items
+            const items = [];
+            const itemRows = document.querySelectorAll('.item-row');
+            
+            itemRows.forEach(row => {
+                const itemName = row.querySelector('.itemName').value;
+                const itemQty = parseInt(row.querySelector('.itemQty').value);
+                const itemPrice = parseInt(row.querySelector('.itemPrice').value);
+                
+                items.push({
+                    name: itemName,
+                    quantity: itemQty,
+                    price: itemPrice,
+                    total: itemQty * itemPrice
+                });
+            });
+            
+            // Calculate total
+            const total = items.reduce((sum, item) => sum + item.total, 0);
+            
+            // Create PO object
+            const purchaseOrder = {
+                id: Date.now(), // Unique ID based on timestamp
+                poNumber,
+                vendorName,
+                vendorPhone,
+                poDate,
+                notes,
+                items,
+                total,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Add to array
+            purchaseOrders.push(purchaseOrder);
+            
+            // Save to localStorage
+            localStorage.setItem('purchaseOrders', JSON.stringify(purchaseOrders));
+            
+            // Render the updated list
+            renderPOList();
+            
+            // Reset form
+            resetForm();
+            
+            // Show success message
+            alert(`Purchase Order "${poNumber}" has been saved successfully!`);
+        });
+        
+        // Reset form
+        resetFormBtn.addEventListener('click', resetForm);
+        
+        function resetForm() {
+            poForm.reset();
+            document.getElementById('poDate').valueAsDate = new Date();
+            
+            // Reset items to one row
+            itemsContainer.innerHTML = `
+                <div class="item-row">
+                    <div class="form-group item-name">
+                        <label>Item Name</label>
+                        <input type="text" class="itemName" placeholder="Item name" required>
+                    </div>
+                    <div class="form-group item-qty">
+                        <label>Quantity</label>
+                        <input type="number" class="itemQty" placeholder="1" min="1" required>
+                    </div>
+                    <div class="form-group item-price">
+                        <label>Unit Price</label>
+                        <input type="number" class="itemPrice" placeholder="100000" min="0" required>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Clear all POs
+        clearAllBtn.addEventListener('click', function() {
+            if (purchaseOrders.length === 0) {
+                alert('No purchase orders to delete.');
+                return;
+            }
+            
+            currentPoId = 'all'; // Set to 'all' to indicate deleting all
+            modalMessage.textContent = 'Are you sure you want to delete ALL purchase orders? This action cannot be undone.';
+            confirmationModal.style.display = 'flex';
+        });
+        
+        // Render PO list
+        function renderPOList() {
+            if (purchaseOrders.length === 0) {
+                poList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No purchase orders yet. Start by creating a new PO.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            poList.innerHTML = '';
+            
+            purchaseOrders.forEach(po => {
+                const poElement = document.createElement('div');
+                poElement.className = 'po-item';
+                poElement.innerHTML = `
+                    <div class="po-item-header">
+                        <div class="po-number">${po.poNumber}</div>
+                        <div class="po-date">${formatDate(po.poDate)}</div>
+                    </div>
+                    <div class="po-vendor">${po.vendorName}</div>
+                    <div class="po-items-summary">${po.items.length} items • Total: ${formatCurrency(po.total)}</div>
+                    <div class="po-total">Total: ${formatCurrency(po.total)}</div>
+                    <div class="po-actions">
+                        <button class="btn btn-success btn-small send-whatsapp-btn" data-id="${po.id}">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
+                        <button class="btn btn-primary btn-small edit-po-btn" data-id="${po.id}">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-danger btn-small delete-po-btn" data-id="${po.id}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                
+                poList.appendChild(poElement);
+            });
+            
+            // Add event listeners to buttons
+            document.querySelectorAll('.send-whatsapp-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const poId = parseInt(this.getAttribute('data-id'));
+                    sendToWhatsApp(poId);
+                });
+            });
+            
+            document.querySelectorAll('.edit-po-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const poId = parseInt(this.getAttribute('data-id'));
+                    editPO(poId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-po-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const poId = parseInt(this.getAttribute('data-id'));
+                    deletePO(poId);
+                });
+            });
+        }
+        
+        // Send PO to WhatsApp
+        function sendToWhatsApp(poId) {
+            const po = purchaseOrders.find(p => p.id === poId);
+            
+            if (!po) {
+                alert('Purchase order not found!');
+                return;
+            }
+            
+            // Format the message
+            let message = `*PURCHASE ORDER*\n\n`;
+            message += `Number: ${po.poNumber}\n`;
+            message += `Date: ${formatDate(po.poDate)}\n`;
+            message += `Vendor: ${po.vendorName}\n\n`;
+            message += `*Item List:*\n`;
+            
+            po.items.forEach((item, index) => {
+                message += `${index + 1}. ${item.name} - ${item.quantity} x ${formatCurrency(item.price)} = ${formatCurrency(item.total)}\n`;
+            });
+            
+            message += `\n*Total: ${formatCurrency(po.total)}*\n`;
+            
+            if (po.notes) {
+                message += `\nNotes: ${po.notes}\n`;
+            }
+            
+            // Encode the message for URL
+            const encodedMessage = encodeURIComponent(message);
+            
+            // Create WhatsApp URL
+            const whatsappUrl = `https://wa.me/${po.vendorPhone}?text=${encodedMessage}`;
+            
+            // Open in new tab
+            window.open(whatsappUrl, '_blank');
+        }
+        
+        // Edit PO
+        function editPO(poId) {
+            const po = purchaseOrders.find(p => p.id === poId);
+            
+            if (!po) {
+                alert('Purchase order not found!');
+                return;
+            }
+            
+            // Fill the form with PO data
+            document.getElementById('poNumber').value = po.poNumber;
+            document.getElementById('vendorName').value = po.vendorName;
+            document.getElementById('vendorPhone').value = po.vendorPhone;
+            document.getElementById('poDate').value = po.poDate;
+            document.getElementById('notes').value = po.notes;
+            
+            // Clear items container and add items from PO
+            itemsContainer.innerHTML = '';
+            
+            po.items.forEach(item => {
+                const itemRow = document.createElement('div');
+                itemRow.className = 'item-row';
+                itemRow.innerHTML = `
+                    <div class="form-group item-name">
+                        <label>Item Name</label>
+                        <input type="text" class="itemName" value="${item.name}" required>
+                    </div>
+                    <div class="form-group item-qty">
+                        <label>Quantity</label>
+                        <input type="number" class="itemQty" value="${item.quantity}" min="1" required>
+                    </div>
+                    <div class="form-group item-price">
+                        <label>Unit Price</label>
+                        <input type="number" class="itemPrice" value="${item.price}" min="0" required>
+                    </div>
+                    <div class="form-group" style="flex: 0.3; display: flex; align-items: flex-end;">
+                        <button type="button" class="btn btn-danger btn-small remove-item-btn" style="padding: 12px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                itemsContainer.appendChild(itemRow);
+                
+                // Add event listener to the remove button
+                itemRow.querySelector('.remove-item-btn').addEventListener('click', function() {
+                    // Only remove if there's more than one item row
+                    if (document.querySelectorAll('.item-row').length > 1) {
+                        itemRow.remove();
+                    } else {
+                        alert('Minimum one item is required in the PO');
+                    }
+                });
+            });
+            
+            // Remove the PO from the list (it will be re-added when saved)
+            purchaseOrders = purchaseOrders.filter(p => p.id !== poId);
+            localStorage.setItem('purchaseOrders', JSON.stringify(purchaseOrders));
+            
+            // Update the list display
+            renderPOList();
+            
+            // Scroll to form
+            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+            
+            alert('Purchase order has been loaded to the form. Please edit and save again.');
+        }
+        
+        // Delete PO
+        function deletePO(poId) {
+            currentPoId = poId;
+            const po = purchaseOrders.find(p => p.id === poId);
+            
+            if (!po) {
+                alert('Purchase order not found!');
+                return;
+            }
+            
+            modalMessage.textContent = `Are you sure you want to delete purchase order "${po.poNumber}"?`;
+            confirmationModal.style.display = 'flex';
+        }
+        
+        // Modal event listeners
+        modalConfirmBtn.addEventListener('click', function() {
+            if (currentPoId === 'all') {
+                // Delete all POs
+                purchaseOrders = [];
+                localStorage.removeItem('purchaseOrders');
+                alert('All purchase orders have been deleted.');
+            } else {
+                // Delete specific PO
+                purchaseOrders = purchaseOrders.filter(p => p.id !== currentPoId);
+                localStorage.setItem('purchaseOrders', JSON.stringify(purchaseOrders));
+                alert('Purchase order has been deleted.');
+            }
+            
+            // Hide modal
+            confirmationModal.style.display = 'none';
+            
+            // Render updated list
+            renderPOList();
+            
+            // Reset currentPoId
+            currentPoId = null;
+        });
+        
+        modalCancelBtn.addEventListener('click', function() {
+            confirmationModal.style.display = 'none';
+            currentPoId = null;
+        });
+        
+        closeModalBtn.addEventListener('click', function() {
+            confirmationModal.style.display = 'none';
+            currentPoId = null;
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === confirmationModal) {
+                confirmationModal.style.display = 'none';
+                currentPoId = null;
+            }
+        });
+        
+        // Helper functions
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+    </script>
+</body>
+</html>
